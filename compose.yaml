@@ -8,7 +8,17 @@ services:
     depends_on:
       db:
         condition: service_healthy
-
+  frontend:
+    build:
+      context: frontend
+      target: development
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend/src:/code/src
+      - /code/node_modules
+    depends_on:
+      - backend
   db:
     image: postgres
     restart: always
