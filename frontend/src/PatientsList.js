@@ -3,14 +3,12 @@ import axios from 'axios';
 import Button from "react-bootstrap/Button";
 
 const Patients = [
-    { id: 1, name: "Random Joe", age: 34, address: "400 Boren Ave, Seattle, WA", contact: "7085719860" },
-    { id: 2, name: "Tom Dick", age: 32, address: "333 Fairview Ave, Fremont, CA", contact: "7085719860" },
-    { id: 3, name: "Random Joe", age: 34, address: "400 Boren Ave, Seattle, WA", contact: "7085719860" },
-    { id: 4, name: "Tom Dick", age: 32, address: "333 Fairview Ave, Fremont, CA", contact: "7085719860" },
-    { id: 5, name: "Random Joe", age: 34, address: "400 Boren Ave, Seattle, WA", contact: "7085719860" },
-    { id: 6, name: "Tom Dick", age: 32, address: "333 Fairview Ave, Fremont, CA", contact: "7085719860" },
-    { id: 7, name: "Random Joe", age: 34, address: "400 Boren Ave, Seattle, WA", contact: "7085719860" },
-    { id: 8, name: "Tom Dick", age: 32, address: "333 Fairview Ave, Fremont, CA", contact: "7085719860" },
+    { id: 1, name: "Random Joe", age: 34, gender: "M", dob: "02/20/1991", address: "400 Boren Ave, Seattle, WA", contact: "7085719860", email: "test@gmail.com" },
+    { id: 2, name: "Tom Dick", age: 32, gender: "F", dob: "06/03/1986", address: "333 Fairview Ave, Fremont, CA", contact: "7085719860", email: "trial@gmail.com" },
+    { id: 1, name: "Random Joe", age: 34, gender: "M", dob: "02/20/1991", address: "400 Boren Ave, Seattle, WA", contact: "7085719860", email: "test@gmail.com" },
+    { id: 2, name: "Tom Dick", age: 32, gender: "F", dob: "06/03/1986", address: "333 Fairview Ave, Fremont, CA", contact: "7085719860", email: "trial@gmail.com" },
+    { id: 1, name: "Random Joe", age: 34, gender: "M", dob: "02/20/1991", address: "400 Boren Ave, Seattle, WA", contact: "7085719860", email: "test@gmail.com" },
+    { id: 2, name: "Tom Dick", age: 32, gender: "F", dob: "06/03/1986", address: "333 Fairview Ave, Fremont, CA", contact: "7085719860", email: "trial@gmail.com" },
 ]
 
 function SearchBar() {
