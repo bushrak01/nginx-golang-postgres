@@ -1,13 +1,20 @@
 import React from 'react';
 import PatientsList from './PatientsList';
-import PatientForm from './PatientForm';
+import SideBar from "./SideBar";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
     return (
-        <div>
-            <PatientForm />
-            <PatientsList />
+        <BrowserRouter>
+        <div className="d-flex">
+            <div className="col-auto">
+                <SideBar />
+            </div>
+            <Routes>
+                <Route path="patients" element={<PatientsList />}></Route>
+            </Routes>
         </div>
+        </BrowserRouter>
     );
 }
 
