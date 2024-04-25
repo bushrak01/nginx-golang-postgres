@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Button from "react-bootstrap/Button";
+import Modal from 'react-bootstrap/Modal';
+import PatientForm from "./PatientForm";
+import AddVisitForm from "./AddVisitForm";
 
 const Patients = [
     { id: 1, name: "Random Joe", age: 34, gender: "M", dob: "02/20/1991", address: "400 Boren Ave, Seattle, WA", contact: "7085719860", email: "test@gmail.com" },
@@ -11,21 +14,96 @@ const Patients = [
     { id: 2, name: "Tom Dick", age: 32, gender: "F", dob: "06/03/1986", address: "333 Fairview Ave, Fremont, CA", contact: "7085719860", email: "trial@gmail.com" },
 ]
 
-function SearchBar() {
+function AddNewPatient() {
+    const [show, setShow] = useState(false);
+
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
+
     return (
-        <form>
-            <div className="row">
-                <div className="col">
+        <>
+            <button type="button" className="btn btn-secondary" onClick={handleShow}>New Patient</button>
+            <Modal
+                show={show}
+                onHide={handleClose}
+                backdrop="static"
+                keyboard={false}
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Register New Patient</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <PatientForm />
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Cancel
+                    </Button>
+                    <Button variant="primary" onClick={handleClose}>Register</Button>
+                </Modal.Footer>
+            </Modal>
+        </>
+    );
+}
+
+function CheckInPatient() {
+    const [show, setShow] = useState(false);
+
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
+
+    return (
+        <>
+            <button type="button" className="btn btn-secondary" onClick={handleShow}>Check-In</button>
+            <Modal
+                show={show}
+                size="lg"
+                onHide={handleClose}
+                backdrop="static"
+                keyboard={false}
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Add New Visit</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <AddVisitForm />
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Cancel
+                    </Button>
+                    <Button variant="primary">Create Visit</Button>
+                </Modal.Footer>
+            </Modal>
+        </>
+    );
+}
+
+function SearchBar() {
+    function handleAddPatient() {
+        console.log("Handling Add Patient")
+    }
+
+    function handleCheckin() {
+        console.log("Handling Check-In")
+    }
+
+    return (
+        <>
+        <div className="row">
+            <div className="col">
+                <form>
                     <input type="text" className="form-control" placeholder="Search..." />
-                </div>
+                </form>
+            </div>
                 <div className="col">
                     <div className="btn-group">
-                        <button type="button" className="btn btn-secondary">New Patient</button>
-                        <button type="button" className="btn btn-secondary">Check-In</button>
+                        <AddNewPatient />
+                        <CheckInPatient />
                     </div>
                 </div>
             </div>
-        </form>
+        </>
     );
 }
 
