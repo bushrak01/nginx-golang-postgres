@@ -77,11 +77,7 @@ nginx-golang-postgres-db-1        "docker-entrypoint.s…"   db                 
 nginx-golang-postgres-proxy-1     "/docker-entrypoint.…"   proxy               running             0.0.0.0:80->80/tcp
 ```
 
-After the application starts, navigate to `http://localhost:80` in your web browser or run:
-```shell
-$ curl localhost:80
-["Blog post #0","Blog post #1","Blog post #2","Blog post #3","Blog post #4"]
-```
+After the application starts, navigate to `http://localhost:3000` in your web browser or run:
 
 Stop and remove the containers
 ```shell
