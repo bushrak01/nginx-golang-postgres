@@ -1,0 +1,422 @@
+openapi: 3.0.3
+info:
+  title: Imperia Hospital Management Service (IHMS) API
+  description: IHMS is a service for managing hospital operations
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:80
+
+paths:
+  /v1/patients/:
+    put:
+      tags:
+        - Patients
+      operationId: RegisterPatient
+      summary: RegisterPatient registers a new patient with IHMS.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatientInfo'
+      responses:
+        '201':
+          description: The patient was successfully registered with IHMS.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+        '409':
+          description: >
+            The patient already exists (or has been deleted). Call UpdatePatient to update or un-delete an
+            existing patient. The response body will return the current state of the patient.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+        '403':
+          description: >
+            The caller is not authorized to perform this operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenError'
+        '400':
+          description: >
+            The request was invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenError'
+        default:
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenError'
+    get:
+      operationId: ListPatients
+      tags:
+        - Patients
+      summary: ListPatients returns list of patients.
+      description: >
+        ListPatients returns a paginated list of patients.
+      parameters:
+        - name: maxResults
+          in: query
+          required: false
+          description: >
+            Optional. The maximum number of results to return. Defaults to `20`. Must be > `0` and <= `500`.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 20
+            nullable: true
+        - name: token
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >
+            Optional. A continuation token, returned from a previous call to `ListPatients`. When specified, the api
+            resumes iterating from the position in the last call.
+        - name: includeDeleted
+          in: query
+          schema:
+            type: boolean
+            default: false
+          required: false
+          description: >
+            Optional. Defaults to false. When true, returns information for the patient even if it is marked as deleted.
+            If a patient is deleted and `IncludedDeleted` is not true, then a `404 NOT FOUND` will be returned.
+      responses:
+        '200':
+          description: On success, a `200 OK` is returned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatientList'
+        '403':
+          description: The caller does not have 'ListPatients' permission.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenError'
+        '400':
+          description: >
+            The request was invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenError'
+        default:
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenError'
+
+  /v1/patients/{patient}:
+    patch:
+      tags:
+        - Patients
+      operationId: UpdatePatient
+      summary: UpdatePatient modifies an existing patient.
+      description: >
+        The UpdatePatient API is used to update a patient. It uses the PATCH verb, and allows individual  fields to be
+        updated. Updates are conditional, and must include an “If-Match” header describing the current
+        version # of the record.
+      parameters:
+        - name: patient
+          in: path
+          description: >
+            The patient id for the patient to be updated.
+          required: true
+          schema:
+            type: string
+        - name: If-Match
+          in: header
+          description: >
+            The current version # of the patient. The request will fail with a `409 CONFLICT` if the stored version # does
+            not match this value.
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Patient:
+                  $ref: '#/components/schemas/PatientInfo'
+                Deleted:
+                  nullable: true
+                  description: >
+                    Optional. When set to 'false' will undo delete a patient. May not be set to 'true'. Call
+                    `DeletePatient` to delete a patient.
+                  type: boolean
+      responses:
+        '200':
+          description: The patient was successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+        '409':
+          description: >
+            The stored version # for the patient does not match `CurrentVersion`. The current state of the patient will
+            be returned in the response body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+        '404':
+          description: >
+            The patient id does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenError'
+        '403':
+          description: >
+            The caller does not have 'UpdatePatient' permission.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenError'
+        '400':
+          description: >
+            The request was invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenError'
+        default:
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenError'
+    get:
+      operationId: DescribePatient
+      tags:
+        - Patients
+      summary: DescribePatient returns meta-data about a patient.
+      description: >
+        `DescribePatient` returns meta-data about a patient registered with IHMS. To return information about a deleted
+        patient, set `IncludeDeleted` to `true`.
+      parameters:
+        - name: patient
+          in: path
+          description: >
+            The id of the patient that you need to describe.
+          schema:
+            type: string
+          required: true
+        - name: includeDeleted
+          in: query
+          schema:
+            type: boolean
+            default: false
+          required: false
+          description: >
+            Optional. Defaults to false. When true, returns information for the patient even if it is marked as deleted.
+            If a patient is deleted and `IncludedDeleted` is not true, then a `404 NOT FOUND` will be returned.
+      responses:
+        '200':
+          description: On success, a `200 OK` is returned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+        '404':
+          description: The patient id does not exist, or it is deleted and IncludeDeleted is not true.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenError'
+        '403':
+          description: The caller does not have 'DescribePatient' permission.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenError'
+        default:
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenError'
+    delete:
+      operationId: DeletePatient
+      tags:
+        - Patients
+      summary: DeletePatient soft deletes a patient record.
+      description: >
+        The DeletePatient API will soft-delete a patient. To un-delete a patient, call `UpdatePatient` and set `Deleted` to `false`.
+      parameters:
+        - name: patient
+          in: path
+          description: >
+            The patient id to be deleted.
+          schema:
+            type: string
+          required: true
+        - name: If-Match
+          in: header
+          description: >
+            The current version # of the patient. The request will fail with a `409 CONFLICT` if the stored version # does
+            not match this value.
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: hard
+          in: query
+          description:
+            When true, hard deletes the patient. Note, you must be whitelisted to hard delete a patient.
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '204':
+          description: On success, a `204 NO CONTENT` is returned.
+        '409':
+          description: >
+            If the stored version of the patient id does not match `CurrentVersion` then a `409 CONFLICT` will be returned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+        '404':
+          description: The patient does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenError'
+        '403':
+          description: The caller does not have 'DeletePatient' permission.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenError'
+        default:
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenError'
+components:
+  schemas:
+    Patient:
+      type: object
+      description: Details of a patient
+      properties:
+        Id:
+          type: string
+          description: Unique identifier for a patient
+        Info:
+          $ref: '#/components/schema/PatientInfo'
+    PatientInfo:
+      type: object
+      nullable: true
+      description: Description of a patient.
+      properties:
+        Name:
+          type: string
+          description: >
+            The name of the patient
+        Gender:
+          type: string
+          description: >
+            The gender of the patient
+          enum:
+            - Male
+            - Female
+            - Other
+        Age:
+          type: integer
+          format: int64
+          description: >
+            The age of the patient
+        DateOfBirth:
+          type: string
+          description: >
+            Date of birth
+        Contact:
+          type: string
+          description: >
+            Contact number
+        Email:
+          type: string
+          description: >
+            Email address
+        Address:
+          $ref: '#/components/schemas/Address'
+    Address:
+        type: object
+        properties:
+          Address:
+            type: string
+            description: Street address
+          City:
+            type: string
+          State:
+            type: string
+          Country:
+            type: string
+          Zipcode:
+            type: string
+    PatientList:
+      type: object
+      description: A paginated list of patient records.
+      properties:
+        Items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Patient'
+          description: A list of patient records.
+        Token:
+          type: string
+          description: >
+            A pagination token used to fetch the next page of results.
+      required:
+        - Items
+    GenError:
+      type: object
+      description: >
+        A generic error returned from IHMS.
+      properties:
+        Code:
+          type: string
+          description: A stable string identifying the type of error.
+        Message:
+          type: string
+          description: >
+            An informational message describing the error. This value is not stable and may change. To
+            programmatically respond to different errors, please use the `Code` field.
+        HttpStatus:
+          type: integer
+          description: >
+            The HTTP response code.
+      required:
+        - Code
+        - Message
+        - HttpStatus
+    ConflictError:
+      type: object
+      description: >
+        An error returned when a request conflicts with the stored state of the object.
+      properties:
+        CurrentState:
+          description: The current state of the object.
+        Message:
+          type: string
+          description: >
+            An informational message describing the error. This value is not stable and may change.
+      required:
+        - CurrentState

@@ -4,6 +4,9 @@ import Button from "react-bootstrap/Button";
 import Modal from 'react-bootstrap/Modal';
 import PatientForm from "./PatientForm";
 import AddVisitForm from "./AddVisitForm";
+import {Pagination} from "react-bootstrap";
+import {Link} from "react-router-dom";
+
 
 const Patients = [
     { id: 1, name: "Random Joe", age: 34, gender: "M", dob: "02/20/1991", address: "400 Boren Ave, Seattle, WA", contact: "7085719860", email: "test@gmail.com" },
@@ -13,6 +16,36 @@ const Patients = [
     { id: 1, name: "Random Joe", age: 34, gender: "M", dob: "02/20/1991", address: "400 Boren Ave, Seattle, WA", contact: "7085719860", email: "test@gmail.com" },
     { id: 2, name: "Tom Dick", age: 32, gender: "F", dob: "06/03/1986", address: "333 Fairview Ave, Fremont, CA", contact: "7085719860", email: "trial@gmail.com" },
 ]
+
+function HandleDeletePatient() {
+    const [show, setShow] = useState(false);
+
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
+
+    return (
+        <>
+            <Button className="border-0" onClick={handleShow}>
+                <i class="bi-trash"></i>
+            </Button>
+
+            <Modal show={show} onHide={handleClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Delete Patient</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>Are you sure you want to delete this?</Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Cancel
+                    </Button>
+                    <Button variant="danger" onClick={handleClose}>
+                        Delete
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        </>
+    );
+}
 
 function AddNewPatient() {
     const [show, setShow] = useState(false);
@@ -112,8 +145,17 @@ const deletePatient = (patientId) => {
 }
 
 function PatientsList() {
-    const [users, setPatients] = useState([]);
+    let active = 0;
+    let items = [];
+    for (let number = 1; number <= 5; number++) {
+        items.push(
+            <Pagination.Item key={number} active={number === active}>
+                {number}
+            </Pagination.Item>,
+        );
+    }
 
+    const [users, setPatients] = useState([]);
     useEffect(() => {
         axios.get("http://localhost:80/patients")
             .then(response => {
@@ -143,16 +185,18 @@ function PatientsList() {
                 {Patients.map(patient => (
                     <tr key={patient.id}>
                         <td>{patient.id}</td>
-                        <td>{patient.name}</td>
+                        <td>
+                            <Link to="patient" className="nav-link text-primary" aria-current="page">
+                                {patient.name}
+                            </Link>
+                        </td>
                         <td>{patient.age}</td>
                         <td>{patient.contact}</td>
                         <td>{patient.address}</td>
-                        <Button className="border-0" onClick={() => deletePatient(patient.id)}>
+                        <Button className="border-0" onClick={HandleDeletePatient}>
                             <i class="bi-pencil"></i>
                         </Button>
-                        <Button className="border-0" onClick={() => deletePatient(patient.id)}>
-                            <i class="bi-trash"></i>
-                        </Button>
+                        <HandleDeletePatient />
                     </tr>
                 ))}
                 </tbody>

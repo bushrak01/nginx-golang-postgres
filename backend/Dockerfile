@@ -15,7 +15,7 @@ COPY . .
 
 RUN --mount=type=cache,target=/go/pkg/mod/cache \
     --mount=type=cache,target=/go-build \
-    go build -o bin/backend main.go
+    go build -o bin/backend ./cmd/main.go
 
 CMD ["/code/bin/backend"]
 
@@ -34,7 +34,7 @@ EOF
 # install Docker tools (cli, buildx, compose)
 COPY --from=gloursdocker/docker / /
 
-CMD ["go", "run", "main.go"]
+CMD ["go", "run", "./cmd/main.go"]
 
 FROM scratch
 COPY --from=builder /code/bin/backend /usr/local/bin/backend
